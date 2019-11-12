@@ -1,5 +1,6 @@
 import csv
 import operator
+from typing import List
 
 import requests
 from bs4 import BeautifulSoup
@@ -77,17 +78,7 @@ def get_port_url(u: str):
     return "https://www.moneycontrol.com/mutual-funds/" + new_data[0] + "/portfolio-holdings/" + new_data[1]
 
 
-if __name__ == "__main__":
-    urls = [
-        'https://www.moneycontrol.com/mutual-funds/nav/mirae-asset-tax-saver-fund-direct-plan/MMA150',
-        'https://www.moneycontrol.com/mutual-funds/nav/tata-india-tax-savings-fund-direct-plan-growth/MTA1114',
-        'https://www.moneycontrol.com/mutual-funds/nav/axis-long-term-equity-fund-direct-plan-growth/MAA192',
-        'https://www.moneycontrol.com/mutual-funds/nav/l-t-emerging-businesses-fund-direct-plan/MCC492',
-        'https://www.moneycontrol.com/mutual-funds/nav/sbi-magnum-multicap-fund-direct-plan-growth/MSB503',
-        'https://www.moneycontrol.com/mutual-funds/nav/dsp-govt-sec-fund-direct-plan-growth/MDS622',
-        'https://www.moneycontrol.com/mutual-funds/nav/axis-bluechip-fund-direct-plan-growth/MAA181',
-        'https://www.moneycontrol.com/mutual-funds/nav/l-t-ultra-short-term-fund-direct-plan-growth/MCC247'
-    ]
+def consolidate_portfolio(urls: List[str]):
     console_port = {}
     for url in urls:
         port_url = get_port_url(url)
@@ -99,14 +90,27 @@ if __name__ == "__main__":
                 console_port[k] = v + console_port[k]
             else:
                 console_port[k] = v
-        if round(sum) != 100:
-            print(url, sum)
-    port = sort_portfolio(console_port)
+        # sum must be 100
+    sorted = sort_portfolio(console_port)
 
     data = []
     count = len(urls)
-    headers = ['Stock Name', 'Of ' + str(count) + "00%", 'Of 100%']
-    for k, v in port:
+    for k, v in sorted:
         data.append([k, v, v / count])
+    return data
 
-    write_to_csv("consolidated", headers, data)
+if __name__ == "__main__":
+    urls = [
+        'https://www.moneycontrol.com/mutual-funds/nav/mirae-asset-tax-saver-fund-direct-plan/MMA150',
+        'https://www.moneycontrol.com/mutual-funds/nav/tata-india-tax-savings-fund-direct-plan-growth/MTA1114',
+        'https://www.moneycontrol.com/mutual-funds/nav/axis-long-term-equity-fund-direct-plan-growth/MAA192',
+        'https://www.moneycontrol.com/mutual-funds/nav/l-t-emerging-businesses-fund-direct-plan/MCC492',
+        'https://www.moneycontrol.com/mutual-funds/nav/sbi-magnum-multicap-fund-direct-plan-growth/MSB503',
+        'https://www.moneycontrol.com/mutual-funds/nav/dsp-govt-sec-fund-direct-plan-growth/MDS622',
+        'https://www.moneycontrol.com/mutual-funds/nav/axis-bluechip-fund-direct-plan-growth/MAA181',
+        'https://www.moneycontrol.com/mutual-funds/nav/l-t-ultra-short-term-fund-direct-plan-growth/MCC247'
+    ]
+
+    consolidated = consolidate_portfolio(urls)
+    headers = ['Stock Name', 'Total %', 'Avg %']
+    write_to_csv("consolidated", headers, consolidated)
