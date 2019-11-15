@@ -24,7 +24,7 @@ class TextWidget(tk.Text):
 
     def paste(self, event):
         text = self.selection_get(selection='CLIPBOARD')
-        self.insert('insert', text)
+        #self.insert('insert', text)
 
 
 class PortFolioMain:
